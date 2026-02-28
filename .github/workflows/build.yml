@@ -1,0 +1,47 @@
+name: Build CRoaring
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up CMake
+      uses: actions/setup-cmake@v2
+
+    - name: Configure the project with CMake
+      run: cmake -B build
+
+    - name: Build the project
+      run: cmake --build build --config Release
+
+    - name: Upload roaring.dll as artifact (for Windows only)
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v2
+      with:
+        name: roaring.dll
+        path: build/Release/roaring.dll
+    
+    - name: Upload roaring.so (for Linux)
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v2
+      with:
+        name: roaring.so
+        path: build/roaring.so
+
+    - name: Upload roaring.dylib (for macOS)
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v2
+      with:
+        name: roaring.dylib
+        path: build/roaring.dylib
